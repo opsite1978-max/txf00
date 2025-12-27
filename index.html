@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>台指籌碼獵殺 - TV戰情版</title>
+    <style>
+        :root { --primary: #172d7a; --bg: #f0f3fa; --card: #ffffff; --text: #131722; --red: #f23645; --green: #089981; --input-bg: #f1f3f6; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 10px; color: var(--text); padding-bottom: 220px; }
+        .container { max-width: 600px; margin: 0 auto; background: var(--card); padding: 0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        
+        /* TradingView 容器 */
+        .tv-container { height: 400px; width: 100%; }
+
+        /* 控制面板 */
+        .control-panel { padding: 20px; }
+
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 20px; margin: 0; color: #131722; font-weight: 800; }
+        .subtitle { font-size: 12px; color: #787b86; margin-top: 4px; }
+
+        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .action-btn { flex: 1; padding: 12px; font-size: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-auto { background: #2962ff; color: white; }
+        .btn-auto:active { background: #1e53e5; transform: scale(0.98); }
+        .btn-clear { background: #e0e3eb; color: #131722; max-width: 100px; }
+        
+        .loading-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .section-title { font-size: 12px; font-weight: 700; color: #787b86; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px 0; display: flex; align-items: center; gap: 8px; }
+        .section-title::after { content: ""; flex: 1; height: 1px; background: #e0e3eb; }
+
+        .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        .input-group { flex: 1; position: relative; }
+        label { display: block; font-size: 11px; color: #787b86; margin-bottom: 4px; font-weight: 500; }
+        
+        input { width: 100%; padding: 12px; border: 1px solid #e0e3eb; border-radius: 8px; font-size: 16px; font-weight: 600; box-sizing: border-box; background: var(--input-bg); color: #131722; outline: none; transition: 0.2s; -webkit-appearance: none; }
+        input:focus { background: #fff; border-color: #2962ff; }
+
+        .tx-input input { border: 2px solid #bfdbfe; background: #eff6ff; color: #1e3a8a; }
+        .long-input input { color: var(--red); background: #fff2f2; border-color: #ffcfcf; }
+        .short-input input { color: var(--green); background: #e6fcf5; border-color: #b2f2bb; }
+
+        /* 結果卡片 */
+        #result-card { 
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); 
+            width: 95%; max-width: 580px; 
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);
+            border-radius: 16px; 
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.15); 
+            border: 1px solid #e0e3eb;
+            z-index: 100;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+        .result-header { padding: 10px 15px; text-align: center; color: white; font-weight: bold; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .bg-red { background: #f23645; } 
+        .bg-green { background: #089981; } 
+        .bg-gray { background: #787b86; }
+        .result-content { padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .main-stat { text-align: left; }
+        .stat-value { font-size: 22px; font-weight: 800; font-family: monospace; }
+        .target-box { text-align: right; }
+        .target-price { font-size: 20px; font-weight: 800; }
+        .target-desc { font-size: 12px; opacity: 0.8; }
+        #status-msg { text-align: center; font-size: 12px; margin-bottom: 10px; min-height: 18px; font-weight: 500; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tv-container">
+        <div class="tradingview-widget-container" style="height:100%;width:100%">
+            <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {
+            "autosize": true,
+            "symbol": "TWSE:TAIEX",
+            "interval": "D",
+            "timezone": "Asia/Taipei",
+            "theme": "light",
+            "style": "1",
+            "locale": "zh-TW",
+            "enable_publishing": false,
+            "hide_top_toolbar": true,
+            "hide_legend": false,
+            "save_image": false,
+            "calendar": false,
+            "hide_volume": true,
+            "support_host": "https://www.tradingview.com",
+            "studies": [
+                "MASimple@tv-basicstudies",
+                "MASimple@tv-basicstudies",
+                "BB@tv-basicstudies"
+            ],
+            "studies_overrides": {
+                "MASimple@tv-basicstudies.length": 60,
+                "MASimple@tv-basicstudies.plottype": "line",
+                "MASimple@tv-basicstudies.color": "#2962FF",
+                
+                "MASimple@tv-basicstudies.length_1": 200,
+                "MASimple@tv-basicstudies.plottype_1": "line",
+                "MASimple@tv-basicstudies.color": "#FF9800"
+            }
+            }
+            </script>
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <header>
+            <h1>📉 台指籌碼獵殺 <span style="font-size:12px; background:#e0e3eb; color:#131722; padding:3px 8px; border-radius:20px;">TV版</span></h1>
+            <div class="subtitle">上方圖表僅供趨勢參考，下方計算點位</div>
+        </header>
+
+        <div class="btn-group">
+            <button class="action-btn btn-auto" onclick="autoDetect()" id="autoBtn">
+                <span id="btn-icon">⚡</span> 快速抓取目前點數
+            </button>
+            <button class="action-btn btn-clear" onclick="clearAll()">🗑️ 清除</button>
+        </div>
+        <div id="status-msg"></div>
+
+        <div class="section-title">📊 價格參數</div>
+        <div class="input-row">
+            <div class="input-group">
+                <label>加權指數</label>
+                <input type="number" id="spot_price" placeholder="自動" disabled style="background:#f1f3f6;">
+            </div>
+            <div class="input-group">
+                <label>波動率 (ATR)</label>
+                <input type="number" id="volatility" placeholder="300" oninput="saveAndCalc()">
+            </div>
+        </div>
+        
+        <div class="input-row">
+            <div class="input-group tx-input">
+                <label>📍 台指期 (目標計算基準)</label>
+                <input type="number" id="tx_price" placeholder="輸入期貨點數" oninput="saveAndCalc()">
+            </div>
+        </div>
+
+        <div class="section-title">📉 散戶籌碼 (小台/微台)</div>
+        <div class="input-row">
+            <div class="input-group long-input">
+                <label>MTX 多單</label>
+                <input type="number" id="mtx_long" placeholder="0" oninput="saveAndCalc()">
+            </div>
+            <div class="input-group short-input">
+                <label>MTX 空單</label>
+                <input type="number" id="mtx_short" placeholder="0" oninput="saveAndCalc()">
+            </div>
+        </div>
+        <div class="input-row">
+            <div class="input-group long-input">
+                <label>TMF 多單</label>
+                <input type="number" id="tmf_long" placeholder="0" oninput="saveAndCalc()">
+            </div>
+            <div class="input-group short-input">
+                <label>TMF 空單</label>
+                <input type="number" id="tmf_short" placeholder="0" oninput="saveAndCalc()">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="result-card">
+    <div id="res-header" class="result-header">
+        <span id="header-title">等待數據...</span>
+        <span style="font-size:11px; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px;">即時</span>
+    </div>
+    <div class="result-content">
+        <div class="main-stat">
+            <div style="font-size:11px; color:#787b86">散戶淨單</div>
+            <div class="stat-value" id="res-total">0</div>
+        </div>
+        <div class="target-box">
+            <div style="font-size:11px; color:#787b86" id="target-label">目標價</div>
+            <div class="target-price" id="res-price">--</div>
+            <div class="target-desc" id="res-action">觀望</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fields = ['spot_price', 'volatility', 'tx_price', 'mtx_long', 'mtx_short', 'tmf_long', 'tmf_short'];
+
+    window.onload = function() {
+        fields.forEach(id => {
+            const savedVal = localStorage.getItem(id);
+            if (savedVal) document.getElementById(id).value = savedVal;
+        });
+        calculate();
+    }
+
+    // 這裡我們還是必須用 Yahoo API 來抓「數值」填入框框，但圖表已經不用 Yahoo 了
+    // 這樣就算抓不到數值，圖表至少還是會顯示，不會整頁壞掉
+    async function autoDetect() {
+        const btn = document.getElementById('autoBtn');
+        const icon = document.getElementById('btn-icon');
+        const status = document.getElementById('status-msg');
+        
+        btn.disabled = true;
+        icon.classList.add('loading-spin');
+        status.innerText = "正在取得最新報價...";
+        
+        try {
+            const symbol = "%5ETWII"; 
+            const timestamp = new Date().getTime();
+            // 只抓 5 天的資料就好，速度比較快
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + symbol + '?interval=1d&range=5d&_=' + timestamp)}`;
+            
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error("API Error");
+            const data = await response.json();
+            const yahooData = JSON.parse(data.contents);
+            if (!yahooData.chart || !yahooData.chart.result) throw new Error("No Data");
+            
+            const result = yahooData.chart.result[0];
+            const quotes = result.indicators.quote[0];
+            const lastClose = result.meta.regularMarketPrice;
+
+            // 簡單計算 ATR (波動)
+            let totalRange = 0;
+            let count = 0;
+            const len = quotes.high.length;
+            for (let i = 0; i < len; i++) {
+                if (quotes.high[i] && quotes.low[i]) {
+                    totalRange += (quotes.high[i] - quotes.low[i]);
+                    count++;
+                }
+            }
+            const avgVol = count > 0 ? Math.round(totalRange / count) : 300;
+            
+            // 填入 UI
+            document.getElementById('spot_price').value = Math.round(lastClose);
+            document.getElementById('volatility').value = avgVol;
+            
+            if(!document.getElementById('tx_price').value) {
+                document.getElementById('tx_price').value = Math.round(lastClose);
+            }
+
+            saveAndCalc();
+            status.innerText = `✅ 報價更新完成`;
+            status.style.color = "#089981";
+            
+        } catch (error) {
+            console.error(error);
+            status.innerText = "⚠️ 數值抓取失敗，請手動輸入";
+            status.style.color = "#f23645";
+        } finally {
+            btn.disabled = false;
+            icon.classList.remove('loading-spin');
+        }
+    }
+
+    function saveAndCalc() {
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) localStorage.setItem(id, el.value);
+        });
+        calculate();
+    }
+
+    function clearAll() {
+        if(confirm('清除數據？')) {
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = '';
+                localStorage.removeItem(id);
+            });
+            calculate();
+        }
+    }
+
+    function calculate() {
+        let spot = parseInt(document.getElementById('spot_price').value) || 0;
+        let tx = parseInt(document.getElementById('tx_price').value);
+        let vol = parseInt(document.getElementById('volatility').value) || 300;
+        let calcPrice = tx ? tx : spot;
+        
+        let mtx_L = parseInt(document.getElementById('mtx_long').value) || 0;
+        let mtx_S = parseInt(document.getElementById('mtx_short').value) || 0;
+        let tmf_L = parseInt(document.getElementById('tmf_long').value) || 0;
+        let tmf_S = parseInt(document.getElementById('tmf_short').value) || 0;
+        
+        let mtx_net = mtx_L - mtx_S;
+        let tmf_net_eq = (tmf_L - tmf_S) * 0.2; 
+        let total_net = mtx_net + tmf_net_eq;
+        
+        const totalEl = document.getElementById('res-total');
+        totalEl.innerText = total_net.toLocaleString('en-US', {maximumFractionDigits: 1});
+        
+        if (total_net > 0) totalEl.style.color = '#f23645'; 
+        else if (total_net < 0) totalEl.style.color = '#089981'; 
+        else totalEl.style.color = '#131722';
+        
+        let cardHeader = document.getElementById('res-header');
+        let headerTitle = document.getElementById('header-title');
+        let resPrice = document.getElementById('res-price');
+        let resAction = document.getElementById('res-action');
+        const THRESHOLD = 1500;
+        
+        if (total_net > THRESHOLD) {
+            cardHeader.className = "result-header bg-green"; 
+            headerTitle.innerText = "📉 散戶做多 ➜ 主力殺盤";
+            let target = calcPrice - vol;
+            resPrice.innerText = target;
+            resPrice.style.color = "#089981"; 
+            resAction.innerText = `殺 ${vol} 點逼停損`;
+            resAction.style.color = "#e6fcf5";
+        } else if (total_net < -THRESHOLD) {
+            cardHeader.className = "result-header bg-red"; 
+            headerTitle.innerText = "📈 散戶做空 ➜ 主力軋空";
+            let target = calcPrice + vol;
+            resPrice.innerText = target;
+            resPrice.style.color = "#f23645"; 
+            resAction.innerText = `拉 ${vol} 點逼停損`;
+            resAction.style.color = "#fff2f2";
+        } else {
+            cardHeader.className = "result-header bg-gray";
+            headerTitle.innerText = "⚖️ 區間震盪";
+            resPrice.innerText = "觀望";
+            resPrice.style.color = "white";
+            resAction.innerText = "無獵殺目標";
+            resAction.style.color = "#e0e3eb";
+        }
+    }
+</script>
+</body>
+</html>

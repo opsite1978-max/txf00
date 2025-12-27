@@ -3,53 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>台指籌碼獵殺 - TV戰情版</title>
+    <title>台指籌碼獵殺 - 期貨戰情版</title>
     <style>
-        :root { --primary: #172d7a; --bg: #f0f3fa; --card: #ffffff; --text: #131722; --red: #f23645; --green: #089981; --input-bg: #f1f3f6; }
+        :root { --primary: #172d7a; --bg: #131722; --card: #1e222d; --text: #d1d4dc; --red: #f23645; --green: #089981; --input-bg: #2a2e39; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 10px; color: var(--text); padding-bottom: 220px; }
-        .container { max-width: 600px; margin: 0 auto; background: var(--card); padding: 0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        .container { max-width: 600px; margin: 0 auto; background: var(--card); padding: 0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); overflow: hidden; }
         
         /* TradingView 容器 */
-        .tv-container { height: 400px; width: 100%; }
+        .tv-container { height: 450px; width: 100%; border-bottom: 1px solid #2a2e39; }
 
         /* 控制面板 */
         .control-panel { padding: 20px; }
 
         header { text-align: center; margin-bottom: 20px; }
-        h1 { font-size: 20px; margin: 0; color: #131722; font-weight: 800; }
+        h1 { font-size: 20px; margin: 0; color: #d1d4dc; font-weight: 800; }
         .subtitle { font-size: 12px; color: #787b86; margin-top: 4px; }
 
         .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
         .action-btn { flex: 1; padding: 12px; font-size: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-auto { background: #2962ff; color: white; }
         .btn-auto:active { background: #1e53e5; transform: scale(0.98); }
-        .btn-clear { background: #e0e3eb; color: #131722; max-width: 100px; }
+        .btn-clear { background: #434651; color: #d1d4dc; max-width: 100px; }
         
         .loading-spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .section-title { font-size: 12px; font-weight: 700; color: #787b86; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px 0; display: flex; align-items: center; gap: 8px; }
-        .section-title::after { content: ""; flex: 1; height: 1px; background: #e0e3eb; }
+        .section-title::after { content: ""; flex: 1; height: 1px; background: #2a2e39; }
 
         .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
         .input-group { flex: 1; position: relative; }
         label { display: block; font-size: 11px; color: #787b86; margin-bottom: 4px; font-weight: 500; }
         
-        input { width: 100%; padding: 12px; border: 1px solid #e0e3eb; border-radius: 8px; font-size: 16px; font-weight: 600; box-sizing: border-box; background: var(--input-bg); color: #131722; outline: none; transition: 0.2s; -webkit-appearance: none; }
-        input:focus { background: #fff; border-color: #2962ff; }
+        input { width: 100%; padding: 12px; border: 1px solid #2a2e39; border-radius: 8px; font-size: 16px; font-weight: 600; box-sizing: border-box; background: var(--input-bg); color: #d1d4dc; outline: none; transition: 0.2s; -webkit-appearance: none; }
+        input:focus { background: #2a2e39; border-color: #2962ff; }
 
-        .tx-input input { border: 2px solid #bfdbfe; background: #eff6ff; color: #1e3a8a; }
-        .long-input input { color: var(--red); background: #fff2f2; border-color: #ffcfcf; }
-        .short-input input { color: var(--green); background: #e6fcf5; border-color: #b2f2bb; }
+        .tx-input input { border: 2px solid #2962ff; background: #1e222d; color: #fff; }
+        .long-input input { color: var(--red); background: #382426; border-color: #f23645; }
+        .short-input input { color: var(--green); background: #1d3630; border-color: #089981; }
 
-        /* 結果卡片 */
+        /* 結果卡片 (暗黑模式) */
         #result-card { 
             position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); 
             width: 95%; max-width: 580px; 
-            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);
+            background: rgba(30, 34, 45, 0.95); backdrop-filter: blur(10px);
             border-radius: 16px; 
-            box-shadow: 0 -5px 30px rgba(0,0,0,0.15); 
-            border: 1px solid #e0e3eb;
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.3); 
+            border: 1px solid #2a2e39;
             z-index: 100;
             overflow: hidden;
             transition: 0.3s;
@@ -60,11 +60,11 @@
         .bg-gray { background: #787b86; }
         .result-content { padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
         .main-stat { text-align: left; }
-        .stat-value { font-size: 22px; font-weight: 800; font-family: monospace; }
+        .stat-value { font-size: 22px; font-weight: 800; font-family: monospace; color: #d1d4dc; }
         .target-box { text-align: right; }
-        .target-price { font-size: 20px; font-weight: 800; }
-        .target-desc { font-size: 12px; opacity: 0.8; }
-        #status-msg { text-align: center; font-size: 12px; margin-bottom: 10px; min-height: 18px; font-weight: 500; color: var(--primary); }
+        .target-price { font-size: 20px; font-weight: 800; color: #d1d4dc; }
+        .target-desc { font-size: 12px; opacity: 0.8; color: #9db2bd; }
+        #status-msg { text-align: center; font-size: 12px; margin-bottom: 10px; min-height: 18px; font-weight: 500; color: #2962ff; }
     </style>
 </head>
 <body>
@@ -76,33 +76,24 @@
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
             {
             "autosize": true,
-            "symbol": "TWSE:TAIEX",
+            "symbol": "TAIFEX:TX1!", 
             "interval": "D",
             "timezone": "Asia/Taipei",
-            "theme": "light",
+            "theme": "dark",
             "style": "1",
             "locale": "zh-TW",
             "enable_publishing": false,
-            "hide_top_toolbar": true,
+            "hide_top_toolbar": false,
             "hide_legend": false,
             "save_image": false,
             "calendar": false,
-            "hide_volume": true,
+            "hide_volume": false,
             "support_host": "https://www.tradingview.com",
             "studies": [
+                "BB@tv-basicstudies",
                 "MASimple@tv-basicstudies",
-                "MASimple@tv-basicstudies",
-                "BB@tv-basicstudies"
-            ],
-            "studies_overrides": {
-                "MASimple@tv-basicstudies.length": 60,
-                "MASimple@tv-basicstudies.plottype": "line",
-                "MASimple@tv-basicstudies.color": "#2962FF",
-                
-                "MASimple@tv-basicstudies.length_1": 200,
-                "MASimple@tv-basicstudies.plottype_1": "line",
-                "MASimple@tv-basicstudies.color": "#FF9800"
-            }
+                "MASimple@tv-basicstudies"
+            ]
             }
             </script>
         </div>
@@ -110,13 +101,13 @@
 
     <div class="control-panel">
         <header>
-            <h1>📉 台指籌碼獵殺 <span style="font-size:12px; background:#e0e3eb; color:#131722; padding:3px 8px; border-radius:20px;">TV版</span></h1>
-            <div class="subtitle">上方圖表僅供趨勢參考，下方計算點位</div>
+            <h1>📉 台指籌碼獵殺 <span style="font-size:12px; background:#2a2e39; color:#fff; padding:3px 8px; border-radius:20px;">期貨版</span></h1>
+            <div class="subtitle">上方圖表為 台指期(TX) 連續月</div>
         </header>
 
         <div class="btn-group">
             <button class="action-btn btn-auto" onclick="autoDetect()" id="autoBtn">
-                <span id="btn-icon">⚡</span> 快速抓取目前點數
+                <span id="btn-icon">⚡</span> 抓取目前點數
             </button>
             <button class="action-btn btn-clear" onclick="clearAll()">🗑️ 清除</button>
         </div>
@@ -125,8 +116,8 @@
         <div class="section-title">📊 價格參數</div>
         <div class="input-row">
             <div class="input-group">
-                <label>加權指數</label>
-                <input type="number" id="spot_price" placeholder="自動" disabled style="background:#f1f3f6;">
+                <label>加權指數 (參考)</label>
+                <input type="number" id="spot_price" placeholder="自動" disabled style="background:#2a2e39; color:#787b86;">
             </div>
             <div class="input-group">
                 <label>波動率 (ATR)</label>
@@ -172,11 +163,11 @@
     </div>
     <div class="result-content">
         <div class="main-stat">
-            <div style="font-size:11px; color:#787b86">散戶淨單</div>
+            <div style="font-size:11px; color:#9db2bd">散戶淨單</div>
             <div class="stat-value" id="res-total">0</div>
         </div>
         <div class="target-box">
-            <div style="font-size:11px; color:#787b86" id="target-label">目標價</div>
+            <div style="font-size:11px; color:#9db2bd" id="target-label">目標價</div>
             <div class="target-price" id="res-price">--</div>
             <div class="target-desc" id="res-action">觀望</div>
         </div>
@@ -194,8 +185,7 @@
         calculate();
     }
 
-    // 這裡我們還是必須用 Yahoo API 來抓「數值」填入框框，但圖表已經不用 Yahoo 了
-    // 這樣就算抓不到數值，圖表至少還是會顯示，不會整頁壞掉
+    // 抓取數值 (Yahoo)
     async function autoDetect() {
         const btn = document.getElementById('autoBtn');
         const icon = document.getElementById('btn-icon');
@@ -208,7 +198,6 @@
         try {
             const symbol = "%5ETWII"; 
             const timestamp = new Date().getTime();
-            // 只抓 5 天的資料就好，速度比較快
             const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + symbol + '?interval=1d&range=5d&_=' + timestamp)}`;
             
             const response = await fetch(proxyUrl);
@@ -221,7 +210,7 @@
             const quotes = result.indicators.quote[0];
             const lastClose = result.meta.regularMarketPrice;
 
-            // 簡單計算 ATR (波動)
+            // 計算 ATR
             let totalRange = 0;
             let count = 0;
             const len = quotes.high.length;
@@ -233,7 +222,7 @@
             }
             const avgVol = count > 0 ? Math.round(totalRange / count) : 300;
             
-            // 填入 UI
+            // 填入數值
             document.getElementById('spot_price').value = Math.round(lastClose);
             document.getElementById('volatility').value = avgVol;
             
@@ -294,7 +283,7 @@
         
         if (total_net > 0) totalEl.style.color = '#f23645'; 
         else if (total_net < 0) totalEl.style.color = '#089981'; 
-        else totalEl.style.color = '#131722';
+        else totalEl.style.color = '#d1d4dc';
         
         let cardHeader = document.getElementById('res-header');
         let headerTitle = document.getElementById('header-title');

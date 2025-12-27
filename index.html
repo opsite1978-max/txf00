@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>台指籌碼獵殺 - 馬年旗艦版</title>
+    <title>台指籌碼獵殺 - 馬年戰略版</title>
     <style>
-        :root { --primary: #c2410c; /* 馬年用橘紅色系 */ --bg: #fff7ed; --card: #ffffff; --text: #431407; --red: #dc2626; --green: #16a34a; --input-bg: #ffedd5; }
+        :root { --primary: #c2410c; --bg: #fff7ed; --card: #ffffff; --text: #431407; --red: #dc2626; --green: #16a34a; --input-bg: #ffedd5; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 100px; }
         .container { max-width: 500px; margin: 0 auto; background: var(--card); border-radius: 20px; box-shadow: 0 10px 25px rgba(194, 65, 12, 0.15); overflow: hidden; }
         
-        /* 馬年圖片區 */
+        /* 圖片 */
         .hero-img { width: 100%; height: 160px; object-fit: cover; display: block; }
-        
         .content-pad { padding: 20px; }
 
         header { text-align: center; margin-bottom: 20px; }
@@ -41,21 +40,25 @@
         .long-input input { color: var(--red); background: #fef2f2; }
         .short-input input { color: var(--green); background: #f0fdf4; }
 
-        /* 結果狀態條 */
-        .status-bar { background: #f1f5f9; padding: 15px; border-radius: 12px; text-align: center; margin-top: 20px; }
-        .status-title { font-size: 13px; color: #64748b; margin-bottom: 5px; }
-        .status-val { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
+        /* 價差顯示條 */
+        .spread-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #fed7aa; padding: 8px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; font-weight: 600; }
+        .spread-val { font-weight: 800; font-size: 15px; }
+
+        /* 總結建議卡片 */
+        .advice-card { background: #431407; color: white; padding: 15px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(67, 20, 7, 0.2); }
+        .advice-header { font-size: 12px; opacity: 0.8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .advice-content { font-size: 16px; font-weight: 700; line-height: 1.4; }
+        .advice-trend { font-size: 24px; font-weight: 900; margin-bottom: 5px; display: block; }
 
         /* 策略表格 */
-        .strategy-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .strategy-table th { background: #431407; color: white; padding: 10px; font-size: 13px; }
+        .strategy-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #ffedd5; }
+        .strategy-table th { background: #ea580c; color: white; padding: 10px; font-size: 13px; }
         .strategy-table td { padding: 12px; text-align: center; border-bottom: 1px solid #fed7aa; font-weight: bold; font-size: 15px; }
-        .strategy-table tr:last-child td { border-bottom: none; }
         
-        .row-200 { background: rgba(255, 255, 255, 0.5); }
-        .row-300 { background: rgba(254, 215, 170, 0.2); }
-        .row-400 { background: rgba(254, 215, 170, 0.4); }
-        .row-500 { background: rgba(254, 215, 170, 0.6); }
+        .row-200 { background: rgba(255, 255, 255, 1); }
+        .row-300 { background: #fff7ed; }
+        .row-400 { background: #ffedd5; }
+        .row-500 { background: #fed7aa; }
 
         #status-msg { text-align: center; font-size: 12px; margin-bottom: 10px; min-height: 18px; font-weight: 500; color: #ea580c; }
     </style>
@@ -63,36 +66,47 @@
 <body>
 
 <div class="container">
-    
     <img src="https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1000&auto=format&fit=crop" class="hero-img" alt="馬到成功">
 
     <div class="content-pad">
         <header>
-            <h1>🐎 台指籌碼 - 馬到成功版</h1>
-            <div class="subtitle">2026 金馬奔騰 • 籌碼獵殺策略</div>
+            <h1>🐎 台指籌碼 - 戰略總結版</h1>
+            <div class="subtitle">價差分析 • 智能建議 • 點位推演</div>
         </header>
 
         <div class="btn-group">
             <button class="action-btn btn-auto" onclick="autoDetect()" id="autoBtn">
-                <span id="btn-icon">⚡</span> 抓取現在點數
+                <span id="btn-icon">⚡</span> 抓取 加權 & 波動
             </button>
             <button class="action-btn btn-clear" onclick="clearAll()">🗑️ 清除</button>
         </div>
         <div id="status-msg"></div>
 
-        <div class="section-title">📍 基準點位</div>
+        <div class="section-title">📍 點位與價差</div>
         <div class="input-row">
             <div class="input-group">
-                <label>加權指數 (參考)</label>
-                <input type="number" id="spot_price" placeholder="自動抓取" disabled style="opacity:0.7">
+                <label>加權指數 (現貨)</label>
+                <input type="number" id="spot_price" placeholder="自動" disabled style="opacity:0.7">
             </div>
+            <div class="input-group">
+                <label>波動率 (ATR)</label>
+                <input type="number" id="volatility" placeholder="自動" oninput="saveAndCalc()">
+            </div>
+        </div>
+        
+        <div class="input-row">
             <div class="input-group tx-input">
-                <label>⭐ 台指期 (計算基準)</label>
-                <input type="number" id="tx_price" placeholder="輸入期貨" oninput="saveAndCalc()">
+                <label>⭐ 台指期 (手動輸入)</label>
+                <input type="number" id="tx_price" placeholder="輸入目前點數" oninput="saveAndCalc()">
             </div>
         </div>
 
-        <div class="section-title">👥 散戶籌碼分佈</div>
+        <div class="spread-bar">
+            <span style="color:#7c2d12">基差 (期 - 現)</span>
+            <span id="spread-val" class="spread-val" style="color:#9ca3af;">--</span>
+        </div>
+
+        <div class="section-title">👥 散戶籌碼 (手動輸入)</div>
         <div class="input-row">
             <div class="input-group long-input">
                 <label>小台多單</label>
@@ -114,10 +128,10 @@
             </div>
         </div>
 
-        <div class="status-bar" id="main-status-bar">
-            <div class="status-title">散戶總權重淨單</div>
-            <div class="status-val" id="res-total">0</div>
-            <div style="font-size:12px; margin-top:5px; color:#9ca3af;" id="res-trend">等待計算...</div>
+        <div class="advice-card">
+            <div class="advice-header">AI 籌碼總結建議</div>
+            <span id="advice-trend" class="advice-trend">等待數據...</span>
+            <div id="advice-content" class="advice-content">請輸入台指期點數與散戶籌碼以進行分析。</div>
         </div>
 
         <div class="section-title">📊 主力目標價推演 (波動劇本)</div>
@@ -126,12 +140,12 @@
                 <thead>
                     <tr>
                         <th>波動 ATR</th>
-                        <th>預估目標價</th>
+                        <th>預估目標 (期)</th>
                         <th>主力動向</th>
                     </tr>
                 </thead>
                 <tbody id="scenario-body">
-                    <tr><td colspan="3" style="color:#9ca3af; padding:20px;">請先輸入籌碼數據</td></tr>
+                    <tr><td colspan="3" style="color:#9ca3af; padding:20px;">等待計算...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -139,7 +153,7 @@
 </div>
 
 <script>
-    const fields = ['spot_price', 'tx_price', 'mtx_long', 'mtx_short', 'tmf_long', 'tmf_short'];
+    const fields = ['spot_price', 'volatility', 'tx_price', 'mtx_long', 'mtx_short', 'tmf_long', 'tmf_short'];
 
     window.onload = function() {
         fields.forEach(id => {
@@ -149,6 +163,7 @@
         calculate();
     }
 
+    // 只抓 加權指數 和 ATR
     async function autoDetect() {
         const btn = document.getElementById('autoBtn');
         const icon = document.getElementById('btn-icon');
@@ -156,34 +171,44 @@
         
         btn.disabled = true;
         icon.classList.add('loading-spin');
-        status.innerText = "正在連線交易所...";
+        status.innerText = "連線 Yahoo Finance 中...";
         
         try {
             const symbol = "%5ETWII"; 
             const timestamp = new Date().getTime();
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + symbol + '?interval=1d&range=2d&_=' + timestamp)}`;
+            // 抓取 5 天資料算 ATR
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + symbol + '?interval=1d&range=5d&_=' + timestamp)}`;
             
             const response = await fetch(proxyUrl);
             if (!response.ok) throw new Error("API Error");
             const data = await response.json();
             const result = JSON.parse(data.contents).chart.result[0];
+            const quotes = result.indicators.quote[0];
             const lastClose = result.meta.regularMarketPrice;
             
-            // 填入數值
-            document.getElementById('spot_price').value = Math.round(lastClose);
-            
-            // 如果台指期沒填，預設填入大盤
-            if(!document.getElementById('tx_price').value) {
-                document.getElementById('tx_price').value = Math.round(lastClose);
+            // 計算 ATR
+            let totalRange = 0;
+            let count = 0;
+            const len = quotes.high.length;
+            for (let i = 0; i < len; i++) {
+                if (quotes.high[i] && quotes.low[i]) {
+                    totalRange += (quotes.high[i] - quotes.low[i]);
+                    count++;
+                }
             }
+            const avgVol = count > 0 ? Math.round(totalRange / count) : 300;
+
+            // 填入數值 (只填現貨和波動，不碰期貨欄位)
+            document.getElementById('spot_price').value = Math.round(lastClose);
+            document.getElementById('volatility').value = avgVol;
 
             saveAndCalc();
-            status.innerText = `✅ 更新成功！目前約 ${Math.round(lastClose)}`;
+            status.innerText = `✅ 更新完畢！加權 ${Math.round(lastClose)} | 波動 ${avgVol}`;
             status.style.color = "#16a34a";
             
         } catch (error) {
             console.error(error);
-            status.innerText = "⚠️ 抓取失敗，請手動輸入";
+            status.innerText = "⚠️ 抓取失敗，請檢查網路";
             status.style.color = "#dc2626";
         } finally {
             btn.disabled = false;
@@ -211,70 +236,101 @@
     }
 
     function calculate() {
-        // 取得價格
         let spot = parseInt(document.getElementById('spot_price').value) || 0;
-        let tx = parseInt(document.getElementById('tx_price').value);
-        let basePrice = tx ? tx : spot; // 計算基準
+        let tx = parseInt(document.getElementById('tx_price').value) || 0;
+        let vol = parseInt(document.getElementById('volatility').value) || 300;
         
-        // 取得籌碼
+        // 籌碼計算
         let mtx_L = parseInt(document.getElementById('mtx_long').value) || 0;
         let mtx_S = parseInt(document.getElementById('mtx_short').value) || 0;
         let tmf_L = parseInt(document.getElementById('tmf_long').value) || 0;
         let tmf_S = parseInt(document.getElementById('tmf_short').value) || 0;
         
-        let mtx_net = mtx_L - mtx_S;
-        let tmf_net_eq = (tmf_L - tmf_S) * 0.2; 
-        let total_net = mtx_net + tmf_net_eq;
+        let total_net = (mtx_L - mtx_S) + (tmf_L - tmf_S) * 0.2;
         
-        // 更新上方狀態
-        const totalEl = document.getElementById('res-total');
-        const trendEl = document.getElementById('res-trend');
-        const statusBar = document.getElementById('main-status-bar');
+        // 1. 計算價差
+        const spreadEl = document.getElementById('spread-val');
+        let spread = 0;
+        if (tx !== 0 && spot !== 0) {
+            spread = tx - spot;
+            if (spread > 0) {
+                spreadEl.innerText = `▲ 正價差 +${spread}`;
+                spreadEl.style.color = "#dc2626";
+            } else if (spread < 0) {
+                spreadEl.innerText = `▼ 逆價差 ${spread}`;
+                spreadEl.style.color = "#16a34a";
+            } else {
+                spreadEl.innerText = "平價差 0";
+                spreadEl.style.color = "#4b5563";
+            }
+        } else {
+            spreadEl.innerText = "--";
+            spreadEl.style.color = "#9ca3af";
+        }
 
-        totalEl.innerText = total_net.toLocaleString('en-US', {maximumFractionDigits: 1});
+        // 2. 生成建議與趨勢
+        const trendEl = document.getElementById('advice-trend');
+        const contentEl = document.getElementById('advice-content');
+        const card = document.querySelector('.advice-card');
         
         let direction = 0; // 0:盤整, 1:殺多(跌), -1:軋空(漲)
         const THRESHOLD = 1500;
 
-        if (total_net > THRESHOLD) {
-            // 散戶多 -> 跌
-            direction = 1; 
-            totalEl.style.color = "#dc2626"; // 散戶多單用紅色顯示
-            trendEl.innerText = "⚠️ 散戶大舉做多，主力可能殺盤";
-            trendEl.style.color = "#dc2626";
-            statusBar.style.borderLeft = "5px solid #16a34a"; // 綠色代表跌勢暗示
-
-        } else if (total_net < -THRESHOLD) {
-            // 散戶空 -> 漲
-            direction = -1;
-            totalEl.style.color = "#16a34a"; // 散戶空單用綠色顯示
-            trendEl.innerText = "🚀 散戶大舉做空，主力可能軋空";
-            trendEl.style.color = "#16a34a";
-            statusBar.style.borderLeft = "5px solid #dc2626"; // 紅色代表漲勢暗示
-
-        } else {
-            direction = 0;
-            totalEl.style.color = "#4b5563";
-            trendEl.innerText = "⚖️ 籌碼平衡，區間震盪";
-            statusBar.style.borderLeft = "5px solid #9ca3af";
+        if (tx === 0) {
+            trendEl.innerText = "等待輸入...";
+            contentEl.innerText = "請輸入「台指期」點數以進行分析。";
+            card.style.background = "#4b5563";
+            renderTable(0, 0);
+            return;
         }
 
-        // 產生表格
-        renderTable(basePrice, direction);
+        if (total_net > THRESHOLD) {
+            // 散戶大舉做多 -> 主力可能殺盤
+            direction = 1; 
+            trendEl.innerText = "📉 籌碼偏空 (主力殺多)";
+            card.style.background = "#166534"; // 綠底
+
+            if (spread < -30) {
+                contentEl.innerText = "⚠️ 危險！散戶做多且逆價差擴大，主力有壓低出貨嫌疑，慎防急殺破底。";
+            } else if (spread > 30) {
+                contentEl.innerText = "⚠️ 散戶追高正價差，主力可能利用正價差進行殺盤收斂，多單宜減碼。";
+            } else {
+                contentEl.innerText = "散戶籌碼偏多，主力上方壓力大，建議找反彈空點，目標看下方支撐。";
+            }
+
+        } else if (total_net < -THRESHOLD) {
+            // 散戶大舉做空 -> 主力可能軋空
+            direction = -1;
+            trendEl.innerText = "🚀 籌碼偏多 (主力軋空)";
+            card.style.background = "#991b1b"; // 紅底
+
+            if (spread > 30) {
+                contentEl.innerText = "🔥 強勢！散戶做空且正價差擴大，主力強勢軋空，切勿隨意摸頭猜頂。";
+            } else if (spread < -30) {
+                contentEl.innerText = "🔥 散戶追空逆價差，主力可能利用逆價差強勢拉抬收斂，空單務必設停損。";
+            } else {
+                contentEl.innerText = "散戶籌碼偏空，主力下方支撐強，建議拉回找買點，目標看上方壓力。";
+            }
+
+        } else {
+            // 盤整
+            direction = 0;
+            trendEl.innerText = "⚖️ 籌碼中性 (區間震盪)";
+            card.style.background = "#4b5563"; // 灰底
+            contentEl.innerText = "目前多空力道均衡，建議觀望或在區間邊緣操作，等待方向明確。";
+        }
+
+        // 3. 產生波動劇本表格
+        renderTable(tx, direction);
     }
 
     function renderTable(price, direction) {
         const tbody = document.getElementById('scenario-body');
         tbody.innerHTML = "";
 
-        if (price === 0) {
-             tbody.innerHTML = `<tr><td colspan="3" style="color:#9ca3af; padding:20px;">請輸入台指期點數</td></tr>`;
+        if (price === 0 || direction === 0) {
+             tbody.innerHTML = `<tr><td colspan="3" style="color:#9ca3af; padding:20px;">無明顯趨勢或缺數據</td></tr>`;
              return;
-        }
-
-        if (direction === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="padding:20px; color:#4b5563;">目前籌碼無明顯攻擊方向<br>建議觀望或做區間</td></tr>`;
-            return;
         }
 
         const atrs = [200, 300, 400, 500];
@@ -285,26 +341,23 @@
             let colorClass = "";
             let rowClass = `row-${atr}`;
 
-            if (direction === 1) {
-                // 殺盤 (跌)
+            if (direction === 1) { // 殺盤
                 target = price - atr;
                 actionText = `殺 ${atr} 點`;
-                colorClass = "color: #16a34a;"; // 綠字 (跌)
-            } else {
-                // 軋空 (漲)
+                colorClass = "color: #16a34a;";
+            } else { // 軋空
                 target = price + atr;
                 actionText = `拉 ${atr} 點`;
-                colorClass = "color: #dc2626;"; // 紅字 (漲)
+                colorClass = "color: #dc2626;";
             }
 
-            const row = `
+            tbody.innerHTML += `
                 <tr class="${rowClass}">
                     <td style="color:#7c2d12;">ATR ${atr}</td>
                     <td style="font-size:18px; ${colorClass}">${target}</td>
                     <td style="font-size:13px; ${colorClass}">${actionText}</td>
                 </tr>
             `;
-            tbody.innerHTML += row;
         });
     }
 </script>
